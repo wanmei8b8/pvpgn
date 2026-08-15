@@ -27,25 +27,28 @@
 #include "handle_bnetd.h"
 #include "common/setup_after.h"
 
-static const char* conn_state_to_str(t_conn_state state) {
-    switch (state) {
-        case conn_state_none:         return "NONE";
-        case conn_state_init:         return "INIT";
-        case conn_state_connecting:   return "CONNECTING";
-        case conn_state_connected:    return "CONNECTED";
-        case conn_state_authed:       return "AUTHED";
-        case conn_state_char_authed:  return "CHAR_AUTHED";
-        case conn_state_destroy:      return "DESTROY";
-        case conn_state_destroying:   return "DESTROYING";
-        case conn_state_any:          return "ANY";
-        default:                      return "UNKNOWN";
-    }
-}
 namespace pvpgn
 {
 
 	namespace d2cs
 	{
+
+        // 辅助函数：将状态枚举转换为可读字符串
+        static const char* conn_state_to_str(t_conn_state state) {
+            switch (state) {
+                case conn_state_none:         return "NONE";
+                case conn_state_init:         return "INIT";
+                case conn_state_connecting:   return "CONNECTING";
+                case conn_state_connected:    return "CONNECTED";
+                case conn_state_authed:       return "AUTHED";
+                case conn_state_char_authed:  return "CHAR_AUTHED";
+                case conn_state_destroy:      return "DESTROY";
+                case conn_state_destroying:   return "DESTROYING";
+                case conn_state_any:          return "ANY";
+                default:                      return "UNKNOWN";
+            }
+        }
+
 
 		static t_connection * bnetd_connection = NULL;
 
