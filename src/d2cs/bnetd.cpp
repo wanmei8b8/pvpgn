@@ -60,8 +60,7 @@ namespace pvpgn
                     // --- 进入异常处理分支 ---
 
                     // A. 打印可读的异常状态
-                    eventlog(eventlog_level_warn, __FUNCTION__, "bnetd connection in bad state: {}",
-                        conn_state_to_str(state));
+                    eventlog(eventlog_level_warn, __FUNCTION__, "bnetd connection in bad state");
 
                     // B. 安全销毁：标记状态触发链表清理，避免直接 free 导致的竞态
                     d2cs_conn_set_state(bnetd_connection, conn_state_destroy);
