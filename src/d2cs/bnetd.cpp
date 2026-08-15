@@ -45,13 +45,32 @@ namespace pvpgn
 			static std::time_t prev_connecting_checktime = 0;
 
 			if (bnetd_connection) {
-				if (d2cs_conn_get_state(bnetd_connection) == conn_state_connecting) {
+                t_conn_state state = d2cs_conn_get_state(bnetd_connection);
+				if (state == conn_state_connecting) {
 					if (std::time(nullptr) - prev_connecting_checktime > prefs_get_s2s_timeout()) {
 						eventlog(eventlog_level_warn, __FUNCTION__, "connection to bnetd s2s timeout");
 						d2cs_conn_set_state(bnetd_connection, conn_state_destroy);
 						return -1;
 					}
-				}
+				}  if (state != conn_state_connecting &&
+                    state != conn_state_connected &&
+                    state != conn_state_authed &&
+                    state != conn_state_char_authed) {
+
+                    // --- 进入异常处理分支 ---
+
+                    // A. 打印可读的异常状态
+                    eventlog(eventlog_level_warn, __FUNCTION__, "bnetd connection in bad state: {}",
+                        conn_state_to_str(state));
+
+                    // B. 安全销毁：标记状态触发链表清理，避免直接 free 导致的竞态
+                    d2cs_conn_set_state(bnetd_connection, conn_state_destroy);
+
+                    // C. 关键：本地指针置空，强制下次循环重新创建连接
+                    bnetd_connection = NULL;
+
+                    return -1;
+                }
 				return 0;
 			}
 			if (!(bnetd_connection = s2s_create(prefs_get_bnetdaddr(), BNETD_SERV_PORT, conn_class_bnetd))) {
