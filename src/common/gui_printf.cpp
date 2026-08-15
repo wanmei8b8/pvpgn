@@ -27,10 +27,8 @@
 #include <windows.h>
 #include <richedit.h>
 
-#include <fmt/format.h>
-
 #include "common/eventlog.h"
-
+#include <common/format.h>
 #include "common/setup_after.h"
 
 namespace pvpgn
@@ -38,37 +36,8 @@ namespace pvpgn
 
 	HWND ghwndConsole;
 
-	extern void guiAddText(t_eventlog_level level, const char *str)
+	static void guiAddText(const char *str, COLORREF clr)
 	{
-		COLORREF clr;
-
-		switch (level)
-		{
-		case eventlog_level_none:
-			clr = RGB(0, 0, 0);
-			break;
-		case eventlog_level_trace:
-			clr = RGB(255, 0, 255);
-			break;
-		case eventlog_level_debug:
-			clr = RGB(0, 0, 255);
-			break;
-		case eventlog_level_info:
-			clr = RGB(0, 0, 0);
-			break;
-		case eventlog_level_warn:
-			clr = RGB(255, 128, 64);
-			break;
-		case eventlog_level_error:
-			clr = RGB(255, 0, 0);
-			break;
-		case eventlog_level_fatal:
-			clr = RGB(255, 0, 0);
-			break;
-		default:
-			clr = RGB(0, 0, 0);
-		}
-
 		int text_length = SendMessageW(ghwndConsole, WM_GETTEXTLENGTH, 0, 0);
 
 		if (text_length > 30000)
@@ -95,6 +64,42 @@ namespace pvpgn
 
 		SendMessageW(ghwndConsole, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&fmt);
 		SendMessageA(ghwndConsole, EM_REPLACESEL, FALSE, (LPARAM)str);
+	}
+
+	//template <typename... Args>
+	//void gui_lvprintf(t_eventlog_level l, const char* format, const Args& ... args)
+	void gui_lvprintf(t_eventlog_level l, const char* format, fmt::ArgList args)
+	{
+		COLORREF clr;
+
+		switch (l)
+		{
+		case eventlog_level_none:
+			clr = RGB(0, 0, 0);
+			break;
+		case eventlog_level_trace:
+			clr = RGB(255, 0, 255);
+			break;
+		case eventlog_level_debug:
+			clr = RGB(0, 0, 255);
+			break;
+		case eventlog_level_info:
+			clr = RGB(0, 0, 0);
+			break;
+		case eventlog_level_warn:
+			clr = RGB(255, 128, 64);
+			break;
+		case eventlog_level_error:
+			clr = RGB(255, 0, 0);
+			break;
+		case eventlog_level_fatal:
+			clr = RGB(255, 0, 0);
+			break;
+		default:
+			clr = RGB(0, 0, 0);
+		}
+
+		guiAddText(fmt::format(format, args).c_str(), clr);
 	}
 }
 #endif

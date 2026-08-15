@@ -36,8 +36,6 @@
 # include <sys/stat.h>
 #endif
 
-#include <fmt/format.h>
-
 #include "compat/strcasecmp.h"
 #include "compat/pdir.h"
 
@@ -50,6 +48,7 @@
 #include "common/util.h"
 #include "common/tag.h"
 #include "common/pugixml.h"
+#include "common/format.h"
 
 #include "account.h"
 #include "connection.h"
@@ -200,7 +199,7 @@ namespace pvpgn
 
 			return 0;
 		}
-		/*
+
 		extern std::string _localize(t_connection * c, const char * func, const char * fmt, const fmt::ArgList &args)
 		{
 			const char *format = fmt;
@@ -232,7 +231,7 @@ namespace pvpgn
 
 			return output;
 		}
-		*/
+
 
 		/* Find localized text for the given language */
 		const char * _find_string(char const * text, t_gamelang gamelang)

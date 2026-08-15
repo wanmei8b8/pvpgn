@@ -140,7 +140,7 @@ namespace pvpgn
 			if (filename.empty() || stat(filename.c_str(), &sfile) != 0)
 			{
 				// try find it in "files"
-				filename = fmt::format("{}/{}", prefs_get_filedir(), rawname);
+				filename = fmt::format("{}/{}", prefs_get_filedir(), rawname).c_str();
 				if (stat(filename.c_str(), &sfile) < 0) /* try again */
 				{
 					/* FIXME: check for lower-case version of filename */

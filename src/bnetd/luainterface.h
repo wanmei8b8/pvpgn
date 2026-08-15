@@ -21,6 +21,10 @@
 #ifndef INCLUDED_LUAINTERFACE_PROTOS
 #define INCLUDED_LUAINTERFACE_PROTOS
 
+#ifdef WIN32
+#pragma comment(lib, "lua5.1.lib")
+#endif
+
 #define JUST_NEED_TYPES
 #include "connection.h"
 #include "luawrapper.h"

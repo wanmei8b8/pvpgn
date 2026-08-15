@@ -589,6 +589,9 @@ namespace pvpgn
 					else
 						std::strcat(temp, " 388");  /* WOLv2 ends by "388" */
 
+					if (std::strlen(temp) > MAX_IRC_MESSAGE_LEN)
+						WARN0("LISTREPLY length exceeded");
+
 					irc_send(conn, RPL_CHANNEL, temp);
 				}
 			}

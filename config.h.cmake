@@ -54,6 +54,7 @@
 #cmakedefine HAVE_GETUID
 #cmakedefine HAVE_IOCTL
 #cmakedefine HAVE_KQUEUE
+#cmakedefine HAVE_MAKE_UNIQUE
 #cmakedefine HAVE__MKDIR
 #cmakedefine HAVE_MKDIR
 #cmakedefine HAVE_MMAP

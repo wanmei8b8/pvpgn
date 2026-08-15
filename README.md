@@ -79,7 +79,7 @@ make
 make install
 ```
 
-#### Ubuntu 16.04, 18.04
+#### Ubuntu 16.04
 ```
 sudo apt-get -y install build-essential git cmake zlib1g-dev
 git clone https://github.com/pvpgn/pvpgn-server.git
@@ -102,7 +102,7 @@ cd pvpgn-server && cmake -G "Unix Makefiles" -H./ -B./build
 cd build && make
 ```
 
-#### Debian 8 with clang compiler
+#### Debian 8
 ```
 sudo apt-get -y install build-essential zlib1g-dev clang libc++-dev git
 wget https://cmake.org/files/v3.7/cmake-3.7.1-Linux-x86_64.tar.gz
@@ -142,11 +142,6 @@ cd build && make
 ```
 
 Full instructions: [Русский](http://harpywar.com/?a=articles&b=2&c=1&d=74) | [English](http://harpywar.com/?a=articles&b=2&c=1&d=74&lang=en)
-
-## Hosting on LAN or VPS with private IP address
-Some VPS providers do not assign your server a direct public IP. If that is the case or you host at home behind NAT you need to setup the route translation in `address_translation.conf`. The public address is pushed as the route server address to game clients when seeking games. Failure to push the correct address to game clients results in players not being able to match and join games (long game search and error).
-
-If your network interface is directly bound to public IP, PvPGN can figure it out on it's own and this step is not necessary.
 
 ## License
 
