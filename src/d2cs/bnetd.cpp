@@ -52,12 +52,23 @@ namespace pvpgn
 						d2cs_conn_set_state(bnetd_connection, conn_state_destroy);
 						return -1;
 					}
-				} else if (state != conn_state_connected) {
-                    // 【新增】捕获异常状态
-                    eventlog(eventlog_level_warn, __FUNCTION__, "bnetd connection in bad state: %d", state);
-                    // 强制销毁连接，触发下一次重连
+				}  if (state != conn_state_connecting &&
+                    state != conn_state_connected &&
+                    state != conn_state_authed &&
+                    state != conn_state_char_authed) {
+
+                    // --- 进入异常处理分支 ---
+
+                    // A. 打印可读的异常状态
+                    eventlog(eventlog_level_warn, __FUNCTION__, "bnetd connection in bad state: {}",
+                        conn_state_to_str(state));
+
+                    // B. 安全销毁：标记状态触发链表清理，避免直接 free 导致的竞态
                     d2cs_conn_set_state(bnetd_connection, conn_state_destroy);
-                    bnetd_destroy(bnetd_connection); // 确保指针置空
+
+                    // C. 关键：本地指针置空，强制下次循环重新创建连接
+                    bnetd_connection = NULL;
+
                     return -1;
                 }
 				return 0;
@@ -95,6 +106,21 @@ namespace pvpgn
 			bnetd_connection = NULL;
 			return 0;
 		}
+		static const char* conn_state_to_str(t_conn_state state) {
+            switch (state) {
+                case conn_state_none:         return "NONE";
+                case conn_state_init:         return "INIT";
+                case conn_state_connecting:   return "CONNECTING";
+                case conn_state_connected:    return "CONNECTED";
+                case conn_state_authed:       return "AUTHED";
+                case conn_state_char_authed:  return "CHAR_AUTHED";
+                case conn_state_destroy:      return "DESTROY";
+                case conn_state_destroying:   return "DESTROYING";
+                case conn_state_any:          return "ANY";
+                default:                      return "UNKNOWN";
+            }
+        }
+
 
 	}
 
