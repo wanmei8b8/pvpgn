@@ -32,7 +32,8 @@
 #include <limits>
 #include <sstream>
 #include <tuple>
-
+#include <unordered_map>
+#include <algorithm>
 #include "compat/strcasecmp.h"
 #include "compat/strncasecmp.h"
 #include "common/packet.h"
