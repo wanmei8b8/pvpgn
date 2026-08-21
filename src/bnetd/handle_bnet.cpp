@@ -738,7 +738,7 @@ namespace pvpgn
             unsigned int client_ip = conn_get_addr(c);
             if (!check_ip_register_limit(client_ip))
             {
-                eventlog(eventlog_level_info, __FUNCTION__, "[{}] IP 24小时内注册账号已超过5个，拒绝账号创建请求", aaddr_num_to_addr_str(ip, 0));
+                eventlog(eventlog_level_info, __FUNCTION__, "[{}] IP 24小时内注册账号已超过5个，拒绝账号创建请求", addr_num_to_addr_str(client_ip, 0));
                 t_packet* const rpacket = packet_create(packet_class_bnet);
                 if (!rpacket)
                     return -1;
@@ -866,7 +866,7 @@ namespace pvpgn
             unsigned int client_ip = conn_get_addr(c);
             if (!check_ip_register_limit(client_ip))
             {
-                eventlog(eventlog_level_info, __FUNCTION__, "[{}] IP 24小时内注册账号已超过5个，拒绝账号创建请求", addr_num_to_addr_str(ip, 0))  ;
+                eventlog(eventlog_level_info, __FUNCTION__, "[{}] IP 24小时内注册账号已超过5个，拒绝账号创建请求", addr_num_to_addr_str(client_ip, 0))  ;
                 t_packet *rpacket = packet_create(packet_class_bnet);
                 if (!rpacket)
                     return -1;
