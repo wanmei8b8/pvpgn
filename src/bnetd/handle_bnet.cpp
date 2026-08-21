@@ -32,7 +32,7 @@
 #include <limits>
 #include <sstream>
 #include <tuple>
-#include <unordered_map>
+#include <map>
 #include <algorithm>
 #include "compat/strcasecmp.h"
 #include "compat/strncasecmp.h"
@@ -180,41 +180,43 @@ namespace pvpgn
 		static int _client_claninforeq(t_connection * c, t_packet const *const packet);
 		static int _client_extrawork(t_connection * c, t_packet const *const packet);
         // 存储每个IP的账号注册时间戳列表，key是IP的整数形式，value是该IP所有账号的注册时间戳集合
-        static std::unordered_map<unsigned int, std::vector<std::time_t>> g_ip_register_records;
-        // 每个IP24小时最大注册账号数
-        #define MAX_REG_PER_24H 5
-        // 24小时对应的秒数
-        #define ONE_DAY_SECONDS (24 * 60 * 60)
+        // 使用 std::map 确保 C++98 兼容
+        static std::map<unsigned int, std::vector<std::time_t> > g_ip_register_records;
 
-        // 检查当前IP过去24小时内的注册账号数量是否超出限制
-        static bool check_ip_register_limit(unsigned int ip)
-        {
-            auto it = g_ip_register_records.find(ip);
-            if (it == g_ip_register_records.end())
-            {
-                // 当前IP还没有任何注册记录，直接允许
+        static bool is_expired(std::time_t now, std::time_t t) {
+            // 24小时对应的秒数
+            return (now - t > (24 * 60 * 60));
+        }
+
+        // 函数对象用于传递 now
+        struct IsExpiredFunctor {
+            std::time_t now;
+            IsExpiredFunctor(std::time_t n) : now(n) {}
+            bool operator()(std::time_t t) const {
+                return is_expired(now, t);
+            }
+        };
+
+        static bool check_ip_register_limit(unsigned int ip) {
+            std::map<unsigned int, std::vector<std::time_t> >::iterator it = g_ip_register_records.find(ip);
+            if (it == g_ip_register_records.end()) {
                 return true;
             }
 
-            std::time_t now = std::time(nullptr);
-            auto& record_list = it->second;
+            std::vector<std::time_t>& list = it->second;
+            std::time_t now = std::time(NULL); // C 风格 time 获取
 
-            // 先清理掉超过24小时的过期记录
-            record_list.erase(
-                std::remove_if(record_list.begin(), record_list.end(),
-                    [now](std::time_t t) { return now - t > ONE_DAY_SECONDS; }),
-                record_list.end()
+            // 清理过期
+            list.erase(
+                std::remove_if(list.begin(), list.end(), IsExpiredFunctor(now)),
+                list.end()
             );
-
-            // 检查剩余有效记录数量是否小于上限
-            return record_list.size() < MAX_REG_PER_24H;
+            // 每个IP24小时最大注册账号数
+            return list.size() < 5;
         }
 
-        // 把当前注册IP的时间戳添加到记录中
-        static void add_ip_register_record(unsigned int ip)
-        {
-            std::time_t now = std::time(nullptr);
-            g_ip_register_records[ip].push_back(now);
+        static void add_ip_register_record(unsigned int ip) {
+            g_ip_register_records[ip].push_back(std::time(NULL));
         }
 
 		/* connection state connected handler table */
