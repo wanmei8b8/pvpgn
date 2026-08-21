@@ -226,6 +226,14 @@ namespace pvpgn
             eventlog(eventlog_level_info, __FUNCTION__, "Time: {}; Registered new account from IP: {}", time_buf, addr_num_to_addr_str(ip));
 
             g_ip_register_records[ip].push_back(now);
+           // 2. 获取当前 IP 在清理过期记录前的总记录数
+            // 注意：这里统计的是包含刚刚添加的这一次在内的所有记录
+            size_t count = g_ip_register_records[ip].size();
+
+            // 3. 输出日志
+            // 使用 {} 占位符，分别传入 IP (unsigned int) 和 次数 (size_t)
+            eventlog(eventlog_level_info, __FUNCTION__, "Registered new account from IP: {}, total registrations (including expired): {}", addr_num_to_addr_str(ip), count);
+
         }
 
 		/* connection state connected handler table */
