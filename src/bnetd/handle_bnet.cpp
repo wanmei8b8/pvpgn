@@ -926,6 +926,21 @@ namespace pvpgn
 			t_packet *rpacket;
 			char const *username;
 			t_hash newpasshash1;
+            // 新增IP注册限制校验
+            unsigned int client_ip = conn_get_addr(c);
+            if (!check_ip_register_limit(client_ip))
+            {
+                eventlog(eventlog_level_info, __FUNCTION__, "[{}] IP 24小时内注册账号已超过5个，拒绝账号创建请求", addr_num_to_addr_str(client_ip, 0))  ;
+                t_packet *rpacket = packet_create(packet_class_bnet);
+                if (!rpacket)
+                    return -1;
+                packet_set_size(rpacket, sizeof(t_server_createacctreply1));
+                packet_set_type(rpacket, SERVER_CREATEACCTREPLY1);
+                bn_int_set(&rpacket->u.server_createacctreply1.result, SERVER_CREATEACCTREPLY1_RESULT_NO);
+                conn_push_outqueue(c, rpacket);
+                packet_del_ref(rpacket);
+                return 0;
+            }
 
 			if (packet_get_size(packet) < sizeof(t_client_createacctreq2)) {
 				eventlog(eventlog_level_error, __FUNCTION__, "[{}] got bad CLIENT_CREATEACCTREQ2 packet (expected {} bytes, got {})", conn_get_socket(c), sizeof(t_client_createacctreq2), packet_get_size(packet));
@@ -965,6 +980,8 @@ namespace pvpgn
 				goto out;
 			}
 
+            // 注册成功，添加当前IP的注册记录
+            add_ip_register_record(client_ip);
 			eventlog(eventlog_level_debug, __FUNCTION__, "[{}] account created", conn_get_socket(c));
 			bn_int_set(&rpacket->u.server_createacctreply2.result, SERVER_CREATEACCTREPLY2_RESULT_OK);
 
