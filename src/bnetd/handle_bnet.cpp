@@ -216,7 +216,16 @@ namespace pvpgn
         }
 
         static void add_ip_register_record(unsigned int ip) {
-            g_ip_register_records[ip].push_back(std::time(NULL));
+            std::time_t now = std::time(NULL);
+
+            // 格式化时间为字符串 (例如: 2026-08-21 22:07:17)
+            char time_buf;
+            std::strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+
+            // 记录日志，将时间字符串作为第一个参数传入 {}
+            eventlog(eventlog_level_info, __FUNCTION__, "Time: {}; Registered new account from IP: {}", time_buf, addr_num_to_addr_str(ip));
+
+            g_ip_register_records[ip].push_back(now);
         }
 
 		/* connection state connected handler table */
@@ -727,7 +736,7 @@ namespace pvpgn
             unsigned int client_ip = conn_get_addr(c);
             if (!check_ip_register_limit(client_ip))
             {
-                eventlog(eventlog_level_info, __FUNCTION__, "[{}] IP 0x{:08x} 24小时内注册账号已超过5个，拒绝账号创建请求", conn_get_socket(c), client_ip);
+                eventlog(eventlog_level_info, __FUNCTION__, "[{}] IP 24小时内注册账号已超过5个，拒绝账号创建请求", addr_num_to_addr_str(client_ip));
                 t_packet* const rpacket = packet_create(packet_class_bnet);
                 if (!rpacket)
                     return -1;
@@ -855,7 +864,7 @@ namespace pvpgn
             unsigned int client_ip = conn_get_addr(c);
             if (!check_ip_register_limit(client_ip))
             {
-                eventlog(eventlog_level_info, __FUNCTION__, "[{}] IP 0x{:08x} 24小时内注册账号已超过5个，拒绝账号创建请求", conn_get_socket(c), client_ip);
+                eventlog(eventlog_level_info, __FUNCTION__, "[{}] IP 24小时内注册账号已超过5个，拒绝账号创建请求", addr_num_to_addr_str(client_ip));
                 t_packet *rpacket = packet_create(packet_class_bnet);
                 if (!rpacket)
                     return -1;
